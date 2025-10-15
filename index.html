@@ -4,6 +4,11 @@
 	<meta charset="UTF-8">
 	<title>جدول تقرير الإنجاز</title>
 	<style>
+
+		#overall_progress {
+    flex: 1;
+    text-align: center;
+}
 		@font-face {
 			font-family: 'Bahij TheSansArabicSemiLight';
 			src: url('BahijTheSansArabic-SemiLight.ttf') format('truetype');
@@ -26,12 +31,12 @@
 			box-shadow: 0 4px 24px rgba(29,112,183,0.10);
 			position: relative;
 		}
-		.header {
-			display: flex;
-			align-items: center;
-			justify-content: space-between;
-			margin-bottom: 36px;
-		}
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+}
 		.logo {
 			height: 64px;
 			width: auto;
@@ -268,7 +273,7 @@
 					var overallPercent = data.length > 0 ? Math.round(totalPercent / data.length) : 0;
 					// حذف الشعار من progressBarHtml
 					var progressBarHtml = `<div style='margin-bottom:24px;text-align:center;'><div class='progress-bar' style='width:220px;display:inline-block;vertical-align:middle;'><div class='progress' style='width:${overallPercent}%;'></div></div> <span style='font-size:1.15em;color:#1d70b7;font-weight:bold;vertical-align:middle;margin-right:8px;'>نسبة الإنجاز الكلية: ${overallPercent}%</span></div>`;
-
+		
 					var tableHtml = `<table>
 						<thead>
 							<tr>
@@ -286,21 +291,24 @@
 							${data.map(row => `<tr>${row.map((cell, i) => i === 5 ? `<td class='note-col'>${cell}</td>` : `<td>${cell}</td>`).join('')}</tr>`).join('')}
 						</tbody>
 					</table>`;
-
-					document.getElementById('table_div').innerHTML = progressBarHtml + tableHtml;
+					document.getElementById('overall_progress').innerHTML = progressBarHtml;
+					document.getElementById('table_div').innerHTML = tableHtml;
 				});
 		}
 
 		setInterval(drawTable, 60000);
+
+
 	</script>
 </head>
 <body>
 	<div class="container">
-		<div class="header">
-			<h1>جدول تقرير الإنجاز</h1>
-			<button onclick="window.print()" style="background:linear-gradient(90deg,#1d70b7 60%,#3fa7f5 100%);color:#fff;font-family:'Bahij TheSansArabicSemiLight',Arial,sans-serif;font-size:1.08em;padding:8px 22px;border:none;border-radius:10px;box-shadow:0 2px 8px #1d70b733;cursor:pointer;transition:background 0.2s;margin-right:12px;">🖨️ طباعة التقرير</button>
-		</div>
-		<div id="table_div"></div>
-	</div>
+    <div class="header">
+        <h1>جدول تقرير الإنجاز</h1>
+        <div id="overall_progress" style="flex:1;text-align:center;"></div>
+        <button onclick="window.print()" style="background:linear-gradient(90deg,#1d70b7 60%,#3fa7f5 100%);color:#fff;font-family:'Bahij TheSansArabicSemiLight',Arial,sans-serif;font-size:1.08em;padding:8px 22px;border:none;border-radius:10px;box-shadow:0 2px 8px #1d70b733;cursor:pointer;transition:background 0.2s;margin-right:12px;">🖨️ طباعة التقرير</button>
+    </div>
+    <div id="table_div"></div>
+</div>
 </body>
 </html>
