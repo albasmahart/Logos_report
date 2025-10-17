@@ -243,8 +243,12 @@
 									let hour = match[4].padStart(2, '0');
 									let min = match[5].padStart(2, '0');
 									let sec = match[6].padStart(2, '0');
-									let ampm = (parseInt(hour) < 12) ? 'AM' : 'PM';
-									return `${ampm} ${hour}:${min}:${sec}<br>${year}/${month}/${day}`;
+									let hourNum = parseInt(hour, 10);
+									let ampm = hourNum < 12 ? 'AM' : 'PM';
+									let hour12 = hourNum % 12;
+									if (hour12 === 0) hour12 = 12;
+									let hour12Str = hour12.toString().padStart(2, '0');
+									return `${ampm} ${hour12Str}:${min}:${sec}<br>${year}/${month}/${day}`;
 								}
 								return val;
 							}
