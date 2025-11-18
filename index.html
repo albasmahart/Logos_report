@@ -206,6 +206,9 @@
 		google.charts.load('current', {'packages':['table']});
 		google.charts.setOnLoadCallback(drawTable);
 
+		// تحديث تلقائي للجدول فقط كل 30 ثانية بدون إعادة تحميل الصفحة
+		setInterval(drawTable, 30000);
+
 		function drawTable() {
 			var sheetId = '1XwqH7JyVOiQYxYDf4Sp-UlXb6mmj4Z56Wy9X9zymnDU';
 			var gid = '0';
@@ -226,6 +229,8 @@
 								function boolIcon(val) {
 									if (val === true || val === "true") {
 										return '<span style="color:#1d70b7;font-size:1.3em;font-weight:bold">✔</span>';
+									} else if (typeof val === "string" && val.replace(/\s/g, "") === "بدون") {
+										return '<span style="color:#868686;font-size:1.3em;font-weight:bold">—</span>';
 									} else {
 										return '<span style="color:#e53935;font-size:1.3em;font-weight:bold">✖</span>';
 									}
@@ -315,7 +320,7 @@
 <body>
 	<div class="container">
     <div class="header">
-        <h1>مشروع تهيئة البيئة المنزلية</h1>
+		<h1 style="font-size:1.7em;">مشروع تهيئة البيئة المنزلية</h1>
         <div id="overall_progress" style="flex:1;text-align:center;"></div>
         <button onclick="window.print()" style="background:linear-gradient(90deg,#1d70b7 60%,#3fa7f5 100%);color:#fff;font-family:'Bahij TheSansArabicSemiLight',Arial,sans-serif;font-size:1.08em;padding:8px 22px;border:none;border-radius:10px;box-shadow:0 2px 8px #1d70b733;cursor:pointer;transition:background 0.2s;margin-right:12px;">🖨️ طباعة التقرير</button>
     </div>
