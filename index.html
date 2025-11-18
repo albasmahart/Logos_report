@@ -207,96 +207,103 @@
 		google.charts.setOnLoadCallback(drawTable);
 
 		function drawTable() {
-			var sheetId = '1dH4YKk5Qk8Rc7A3ZIP6QOsDqIgoUrcCZQrvYKZNyZws';
-			var gid = '1818940627';
+			var sheetId = '1XwqH7JyVOiQYxYDf4Sp-UlXb6mmj4Z56Wy9X9zymnDU';
+			var gid = '0';
 			var url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&gid=${gid}`;
+
 
 			fetch(url)
 				.then(res => res.text())
 				.then(rep => {
-					var json = JSON.parse(rep.substr(47).slice(0, -2));
-					var rows = json.table.rows;
-					var data = [];
-					var numbering = 1;
+					try {
+						var json = JSON.parse(rep.substr(47).slice(0, -2));
+						var rows = json.table.rows;
+						var data = [];
+						var numbering = 1;
 
-					rows.forEach(row => {
-						if (row.c[1] && row.c[1].v && row.c[1].v.trim() !== "") {
-							function boolIcon(val) {
-								if (val === true || val === "true") {
-									return '<span style="color:#1d70b7;font-size:1.3em;font-weight:bold">✔</span>';
-								} else {
-									return '<span style="color:#e53935;font-size:1.3em;font-weight:bold">✖</span>';
+						rows.forEach(row => {
+							if (row.c[1] && row.c[1].v && row.c[1].v.trim() !== "") {
+								function boolIcon(val) {
+									if (val === true || val === "true") {
+										return '<span style="color:#1d70b7;font-size:1.3em;font-weight:bold">✔</span>';
+									} else {
+										return '<span style="color:#e53935;font-size:1.3em;font-weight:bold">✖</span>';
+									}
 								}
-							}
-							let done = 0;
-							if (row.c[2] && (row.c[2].v === true || row.c[2].v === "true")) done++;
-							if (row.c[3] && (row.c[3].v === true || row.c[3].v === "true")) done++;
-							if (row.c[4] && (row.c[4].v === true || row.c[4].v === "true")) done++;
-							let percent = Math.round((done / 3) * 100);
-							function formatSheetDate(val) {
-								if (!val) return '';
-								let match = /Date\((\d+),(\d+),(\d+),(\d+),(\d+),(\d+)\)/.exec(val);
-								if (match) {
-									let year = match[1];
-									let month = (parseInt(match[2]) + 1).toString().padStart(2, '0');
-									let day = match[3].padStart(2, '0');
-									let hour = match[4].padStart(2, '0');
-									let min = match[5].padStart(2, '0');
-									let sec = match[6].padStart(2, '0');
-									let hourNum = parseInt(hour, 10);
-									let ampm = hourNum < 12 ? 'AM' : 'PM';
-									let hour12 = hourNum % 12;
-									if (hour12 === 0) hour12 = 12;
-									let hour12Str = hour12.toString().padStart(2, '0');
-									return `${ampm} ${hour12Str}:${min}:${sec}<br>${year}/${month}/${day}`;
+								let done = 0;
+								if (row.c[2] && (row.c[2].v === true || row.c[2].v === "true")) done++;
+								if (row.c[3] && (row.c[3].v === true || row.c[3].v === "true")) done++;
+								if (row.c[4] && (row.c[4].v === true || row.c[4].v === "true")) done++;
+								let percent = Math.round((done / 3) * 100);
+								function formatSheetDate(val) {
+									if (!val) return '';
+									let match = /Date\((\d+),(\d+),(\d+),(\d+),(\d+),(\d+)\)/.exec(val);
+									if (match) {
+										let year = match[1];
+										let month = (parseInt(match[2]) + 1).toString().padStart(2, '0');
+										let day = match[3].padStart(2, '0');
+										let hour = match[4].padStart(2, '0');
+										let min = match[5].padStart(2, '0');
+										let sec = match[6].padStart(2, '0');
+										let hourNum = parseInt(hour, 10);
+										let ampm = hourNum < 12 ? 'AM' : 'PM';
+										let hour12 = hourNum % 12;
+										if (hour12 === 0) hour12 = 12;
+										let hour12Str = hour12.toString().padStart(2, '0');
+										return `${ampm} ${hour12Str}:${min}:${sec}<br>${year}/${month}/${day}`;
+									}
+									return val;
 								}
-								return val;
+								data.push([
+									numbering++,
+									row.c[1] ? row.c[1].v : '',
+									boolIcon(row.c[2] ? row.c[2].v : false),
+									boolIcon(row.c[3] ? row.c[3].v : false),
+									boolIcon(row.c[4] ? row.c[4].v : false),
+									`<span class="note">${row.c[5] ? row.c[5].v : ''}</span>`,
+									row.c[6] ? formatSheetDate(row.c[6].v) : '',
+									`<div class="progress-bar"><div class="progress" style="width:${percent}%"></div></div>
+									 <span>${percent}%</span>`
+								]);
 							}
-							data.push([
-								numbering++,
-								row.c[1] ? row.c[1].v : '',
-								boolIcon(row.c[2] ? row.c[2].v : false),
-								boolIcon(row.c[3] ? row.c[3].v : false),
-								boolIcon(row.c[4] ? row.c[4].v : false),
-								`<span class="note">${row.c[5] ? row.c[5].v : ''}</span>`,
-								row.c[6] ? formatSheetDate(row.c[6].v) : '',
-								`<div class="progress-bar"><div class="progress" style="width:${percent}%"></div></div>
-								 <span>${percent}%</span>`
-							]);
-						}
-					});
+						});
 
-					// حساب نسبة الإنجاز الكلية بناءً على عمود "نسبة الإنجاز"
-					var totalPercent = 0;
-					data.forEach(row => {
-						var percentMatch = row[7].match(/(\d+)%/);
-						if (percentMatch) {
-							totalPercent += parseInt(percentMatch[1], 10);
-						}
-					});
-					var overallPercent = data.length > 0 ? Math.round(totalPercent / data.length) : 0;
-					// حذف الشعار من progressBarHtml
-					var progressBarHtml = `<div style='margin-bottom:24px;text-align:center;'><div class='progress-bar' style='width:220px;display:inline-block;vertical-align:middle;'><div class='progress' style='width:${overallPercent}%;'></div></div> <span style='font-size:1.15em;color:#1d70b7;font-weight:bold;vertical-align:middle;margin-right:8px;'>نسبة الإنجاز الكلية: ${overallPercent}%</span></div>`;
-		
-					var tableHtml = `<table>
-						<thead>
-							<tr>
-								<th>الترقيم</th>
-								<th>الإسم</th>
-								<th>تصميم الشعار</th>
-								<th>تصميم الهوية</th>
-								<th>طباعة الهوية</th>
-								<th style="width:28%">الملاحظة الحالية</th>
-								<th style="width:10%">آخر تحديث</th>
-								<th>نسبة الإنجاز</th>
-							</tr>
-						</thead>
-						<tbody>
-							${data.map(row => `<tr>${row.map((cell, i) => i === 5 ? `<td class='note-col'>${cell}</td>` : `<td>${cell}</td>`).join('')}</tr>`).join('')}
-						</tbody>
-					</table>`;
-					document.getElementById('overall_progress').innerHTML = progressBarHtml;
-					document.getElementById('table_div').innerHTML = tableHtml;
+						// حساب نسبة الإنجاز الكلية بناءً على عمود "نسبة الإنجاز"
+						var totalPercent = 0;
+						data.forEach(row => {
+							var percentMatch = row[7].match(/(\d+)%/);
+							if (percentMatch) {
+								totalPercent += parseInt(percentMatch[1], 10);
+							}
+						});
+						var overallPercent = data.length > 0 ? Math.round(totalPercent / data.length) : 0;
+						var progressBarHtml = `<div style='margin-bottom:24px;text-align:center;'><div class='progress-bar' style='width:220px;display:inline-block;vertical-align:middle;'><div class='progress' style='width:${overallPercent}%;'></div></div> <span style='font-size:1.15em;color:#1d70b7;font-weight:bold;vertical-align:middle;margin-right:8px;'>نسبة الإنجاز الكلية: ${overallPercent}%</span></div>`;
+
+						var tableHtml = `<table>
+							<thead>
+								<tr>
+									<th>الترقيم</th>
+									<th>الإسم</th>
+									<th>الصيانة المنزلية</th>
+									<th>الأجهزة الكهربائية</th>
+									<th>الأثاث المنزلي</th>
+									<th style="width:28%">الملاحظة الحالية</th>
+									<th style="width:10%">آخر تحديث</th>
+									<th>نسبة الإنجاز</th>
+								</tr>
+							</thead>
+							<tbody>
+								${data.map(row => `<tr>${row.map((cell, i) => i === 5 ? `<td class='note-col'>${cell}</td>` : `<td>${cell}</td>`).join('')}</tr>`).join('')}
+							</tbody>
+						</table>`;
+						document.getElementById('overall_progress').innerHTML = progressBarHtml;
+						document.getElementById('table_div').innerHTML = tableHtml;
+					} catch (err) {
+						document.getElementById('table_div').innerHTML = `<div style='color:#e53935;font-size:1.2em;text-align:center;margin:32px 0;'>حدث خطأ أثناء معالجة البيانات.<br>تأكد من إعدادات المشاركة أو صحة الرابط.</div>`;
+					}
+				})
+				.catch(function(err) {
+					document.getElementById('table_div').innerHTML = `<div style='color:#e53935;font-size:1.2em;text-align:center;margin:32px 0;'>حدث خطأ أثناء جلب البيانات من Google Sheets.<br>تأكد من إعدادات المشاركة أو صحة الرابط.</div>`;
 				});
 		}
 
